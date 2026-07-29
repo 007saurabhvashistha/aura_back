@@ -1,0 +1,27 @@
+{
+  "name": "aura",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aura — an AI Relationship Platform (voice-first, memory, emotional intelligence).",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace @aura/web",
+    "dev:api": "npm run dev --workspace @aura/api",
+    "build:shared": "npm run build --workspace @aura/shared",
+    "build": "npm run build:shared && npm run build --workspace @aura/api && npm run build --workspace @aura/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run build:shared && npm run typecheck --workspace @aura/api && npm run typecheck --workspace @aura/web",
+    "test": "npm run build:shared && npm run test --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "drizzle-orm": "^0.36.4"
+  }
+}
