@@ -35,3 +35,13 @@ export const sensitiveAuthLimiter = rateLimit({
   skip,
   handler,
 });
+
+/** Limiter for authenticated profile mutations (PATCH/PUT/POST/DELETE). */
+export const profileLimiter = rateLimit({
+  windowMs: FIFTEEN_MINUTES,
+  limit: 60,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  skip,
+  handler,
+});

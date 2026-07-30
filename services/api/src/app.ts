@@ -1,12 +1,14 @@
 import express, { type Express, type Request, type Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { env } from './config/env.js';
 import { success } from './utils/api_response.js';
 import { notFound } from './middleware/not_found.js';
 import { errorHandler } from './middleware/error_handler.js';
 import { healthRouter } from './modules/health/health.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
+import { profileRouter } from './modules/profile/profile.routes.js';
 
 /** Build and configure the Express application (no listening here). */
 export function createApp(): Express {
@@ -21,6 +23,7 @@ export function createApp(): Express {
   );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
 
   // Root — simple identity endpoint.
   app.get('/', (_req: Request, res: Response) => {
@@ -37,6 +40,7 @@ export function createApp(): Express {
 
   // Versioned API namespace (features mount here from Sprint 1 onward).
   app.use('/api/v1/auth', authRouter);
+  app.use('/api/v1/users', profileRouter);
 
   app.use(notFound);
   app.use(errorHandler);

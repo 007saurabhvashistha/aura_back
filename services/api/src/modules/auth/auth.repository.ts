@@ -2,6 +2,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { requireDb } from '../../db/client.js';
 import {
   refreshTokens,
+  userProfiles,
   users,
   type NewRefreshTokenRow,
   type NewUserRow,
@@ -25,8 +26,12 @@ export const authRepository = {
 
   async createUser(data: NewUserRow): Promise<UserRow> {
     const db = requireDb();
-    const [row] = await db.insert(users).values(data).returning();
-    return row;
+    // A user and their (empty) profile must exist together or not at all.
+    return db.transaction(async (tx) => {
+      const [row] = await tx.insert(users).values(data).returning();
+      await tx.insert(userProfiles).values({ userId: row.id });
+      return row;
+    });
   },
 
   async createRefreshToken(data: NewRefreshTokenRow): Promise<RefreshTokenRow> {

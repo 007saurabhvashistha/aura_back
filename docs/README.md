@@ -31,6 +31,7 @@ docs/
 ## Features
 
 - [Authentication](features/authentication.md)
+- [User Identity & Personalization](features/user-identity-personalization.md)
 
 ## Engineering
 

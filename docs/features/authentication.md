@@ -43,12 +43,20 @@ Base path: `/api/v1/auth`. All responses use the standard envelope
 | ------ | ---------- | ------ | ------- | ---- |
 | POST   | `/signup`  | —      | `201`   | `{ email, password, name? }` |
 | POST   | `/login`   | —      | `200`   | `{ email, password }` |
-| POST   | `/refresh` | —      | `200`   | `{ refreshToken }` |
-| POST   | `/logout`  | —      | `200`   | `{ refreshToken }` |
+| POST   | `/refresh` | Cookie | `200`   | — (reads `refresh_token` cookie) |
+| POST   | `/logout`  | Cookie | `200`   | — (reads `refresh_token` cookie) |
 | GET    | `/me`      | Bearer | `200`   | — |
 
-`signup` and `login` return `{ user, tokens }`. `refresh` returns a new
-`tokens` object. `me` returns the `UserProfile`.
+`signup` and `login` return `{ user, tokens }` and set the refresh token as an
+`httpOnly` cookie (see the Sprint 2 update below). `tokens` contains only the
+access token. `refresh` returns a new `tokens` object and rotates the cookie.
+`me` returns the `UserProfile`.
+
+> **Sprint 2 update — refresh-token cookies.** As of Sprint 2 the refresh token
+> is no longer returned in the response body. It is delivered as an
+> `httpOnly`, `Secure` (production), `SameSite` cookie scoped to
+> `/api/v1/auth`, and is never accessible to JavaScript. The access token
+> stays in memory on the client. Rotation and revocation behavior is unchanged.
 
 ### Error codes
 

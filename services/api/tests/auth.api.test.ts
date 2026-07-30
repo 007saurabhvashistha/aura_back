@@ -65,13 +65,17 @@ beforeEach(() => {
 });
 
 describe('POST /auth/signup', () => {
-  it('creates an account and returns tokens without the password hash', async () => {
+  it('creates an account and returns an access token without the password hash', async () => {
     const res = await request(app).post(`${AUTH}/signup`).send(creds);
     expect(res.status).toBe(201);
     expect(res.body.data.user.email).toBe('ada@aura.dev');
     expect(res.body.data.user).not.toHaveProperty('passwordHash');
     expect(res.body.data.tokens.accessToken).toBeTruthy();
-    expect(res.body.data.tokens.refreshToken).toBeTruthy();
+    // Refresh token is delivered as an httpOnly cookie, never in the body.
+    expect(res.body.data.tokens).not.toHaveProperty('refreshToken');
+    const setCookie = res.headers['set-cookie'] as unknown as string[];
+    expect(setCookie.some((c) => c.startsWith('refresh_token='))).toBe(true);
+    expect(setCookie.some((c) => c.toLowerCase().includes('httponly'))).toBe(true);
   });
 
   it('rejects a duplicate email with 409', async () => {
@@ -136,23 +140,38 @@ describe('GET /auth/me', () => {
   });
 });
 
-describe('POST /auth/refresh (rotation)', () => {
-  it('rotates tokens and rejects reuse of the old refresh token', async () => {
-    const signup = await request(app).post(`${AUTH}/signup`).send(creds);
-    const oldRefresh = signup.body.data.tokens.refreshToken;
+/** Extract the refresh_token cookie value(s) from a response for reuse. */
+function refreshCookie(res: request.Response): string[] {
+  return (res.headers['set-cookie'] as unknown as string[]).filter((c) =>
+    c.startsWith('refresh_token='),
+  );
+}
 
-    const refreshed = await request(app).post(`${AUTH}/refresh`).send({ refreshToken: oldRefresh });
+describe('POST /auth/refresh (rotation)', () => {
+  it('rotates tokens and rejects reuse of the old refresh cookie', async () => {
+    const signup = await request(app).post(`${AUTH}/signup`).send(creds);
+    const oldCookie = refreshCookie(signup);
+
+    const refreshed = await request(app).post(`${AUTH}/refresh`).set('Cookie', oldCookie);
     expect(refreshed.status).toBe(200);
     expect(refreshed.body.data.accessToken).toBeTruthy();
-    expect(refreshed.body.data.refreshToken).not.toBe(oldRefresh);
+    const newCookie = refreshCookie(refreshed);
+    expect(newCookie[0]).not.toBe(oldCookie[0]);
 
-    const reuse = await request(app).post(`${AUTH}/refresh`).send({ refreshToken: oldRefresh });
+    const reuse = await request(app).post(`${AUTH}/refresh`).set('Cookie', oldCookie);
     expect(reuse.status).toBe(401);
     expect(reuse.body.errors[0].code).toBe('invalid_refresh');
   });
 
-  it('rejects a malformed refresh token with 401', async () => {
-    const res = await request(app).post(`${AUTH}/refresh`).send({ refreshToken: 'garbage-token' });
+  it('returns 401 when no refresh cookie is present', async () => {
+    const res = await request(app).post(`${AUTH}/refresh`);
+    expect(res.status).toBe(401);
+  });
+
+  it('rejects a malformed refresh cookie with 401', async () => {
+    const res = await request(app)
+      .post(`${AUTH}/refresh`)
+      .set('Cookie', ['refresh_token=garbage-token']);
     expect(res.status).toBe(401);
   });
 });
@@ -160,12 +179,12 @@ describe('POST /auth/refresh (rotation)', () => {
 describe('POST /auth/logout', () => {
   it('revokes the refresh token so it can no longer be used', async () => {
     const signup = await request(app).post(`${AUTH}/signup`).send(creds);
-    const refreshToken = signup.body.data.tokens.refreshToken;
+    const cookie = refreshCookie(signup);
 
-    const logout = await request(app).post(`${AUTH}/logout`).send({ refreshToken });
+    const logout = await request(app).post(`${AUTH}/logout`).set('Cookie', cookie);
     expect(logout.status).toBe(200);
 
-    const afterLogout = await request(app).post(`${AUTH}/refresh`).send({ refreshToken });
+    const afterLogout = await request(app).post(`${AUTH}/refresh`).set('Cookie', cookie);
     expect(afterLogout.status).toBe(401);
   });
 });

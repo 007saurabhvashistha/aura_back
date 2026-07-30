@@ -16,6 +16,19 @@ import type { LoginInput, SignupInput } from './auth.schemas.js';
 
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
+/** Signup/login outcome: the public response plus the raw refresh token
+ *  (delivered by the controller as an httpOnly cookie, never in the body). */
+export interface AuthOutcome {
+  response: AuthResponse;
+  refreshToken: string;
+}
+
+/** Refresh outcome: new access-token payload plus the rotated refresh token. */
+export interface RefreshOutcome {
+  tokens: AuthTokens;
+  refreshToken: string;
+}
+
 /** Map a database row to the public user profile (drops the password hash). */
 function toProfile(user: UserRow): UserProfile {
   return {
@@ -28,7 +41,7 @@ function toProfile(user: UserRow): UserProfile {
 }
 
 /** Issue a fresh access + refresh token pair and persist the refresh token. */
-async function issueTokens(user: UserRow): Promise<AuthTokens> {
+async function issueTokens(user: UserRow): Promise<RefreshOutcome> {
   const jti = randomUUID();
   const refreshToken = signRefreshToken(user.id, jti);
 
@@ -40,15 +53,17 @@ async function issueTokens(user: UserRow): Promise<AuthTokens> {
   });
 
   return {
-    accessToken: signAccessToken(user.id, user.email),
+    tokens: {
+      accessToken: signAccessToken(user.id, user.email),
+      tokenType: 'Bearer',
+      expiresIn: env.JWT_ACCESS_EXPIRES_IN,
+    },
     refreshToken,
-    tokenType: 'Bearer',
-    expiresIn: env.JWT_ACCESS_EXPIRES_IN,
   };
 }
 
 export const authService = {
-  async signup(input: SignupInput): Promise<AuthResponse> {
+  async signup(input: SignupInput): Promise<AuthOutcome> {
     const existing = await authRepository.findUserByEmail(input.email);
     if (existing) {
       logger.warn('auth.signup.rejected', { event: 'auth.signup.rejected', email: input.email, reason: 'email_taken' });
@@ -62,10 +77,11 @@ export const authService = {
     });
 
     logger.info('auth.signup.success', { event: 'auth.signup.success', userId: user.id, email: user.email });
-    return { user: toProfile(user), tokens: await issueTokens(user) };
+    const { tokens, refreshToken } = await issueTokens(user);
+    return { response: { user: toProfile(user), tokens }, refreshToken };
   },
 
-  async login(input: LoginInput): Promise<AuthResponse> {
+  async login(input: LoginInput): Promise<AuthOutcome> {
     const user = await authRepository.findUserByEmail(input.email);
     // Always run a comparison to reduce user-enumeration timing differences.
     const ok = user
@@ -77,10 +93,11 @@ export const authService = {
     }
 
     logger.info('auth.login.success', { event: 'auth.login.success', userId: user.id, email: user.email });
-    return { user: toProfile(user), tokens: await issueTokens(user) };
+    const { tokens, refreshToken } = await issueTokens(user);
+    return { response: { user: toProfile(user), tokens }, refreshToken };
   },
 
-  async refresh(refreshToken: string): Promise<AuthTokens> {
+  async refresh(refreshToken: string): Promise<RefreshOutcome> {
     let payload;
     try {
       payload = verifyRefreshToken(refreshToken);

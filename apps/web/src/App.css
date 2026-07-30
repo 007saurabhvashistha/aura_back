@@ -99,3 +99,190 @@
   color: #6f679a;
   font-size: 0.85rem;
 }
+
+/* ── Sprint 2: auth + profile UI ─────────────────────────────────────────── */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  min-width: 22rem;
+  max-width: 34rem;
+  width: 100%;
+  backdrop-filter: blur(8px);
+  text-align: left;
+  margin: 0 auto 1rem;
+}
+
+.card h2 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9a8fc7;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  color: #b3aad0;
+  font-size: 0.9rem;
+}
+
+label.checkbox {
+  grid-auto-flow: column;
+  justify-content: start;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+input,
+select,
+textarea {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  color: #efeaff;
+  font: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #7a5cff;
+}
+
+button {
+  background: linear-gradient(90deg, #6a4bff, #7a5cff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.ghost {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbbcff;
+  text-decoration: none;
+}
+
+.error {
+  color: #ff7a90;
+  font-size: 0.9rem;
+}
+
+.ok {
+  color: #5ce6a5;
+  font-size: 0.9rem;
+}
+
+.profile {
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.profile-header,
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.home-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.banner {
+  background: rgba(122, 92, 255, 0.12);
+  border: 1px solid rgba(122, 92, 255, 0.35);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 34rem;
+  margin: 0 auto 1rem;
+}
+
+.banner a {
+  color: #cbbcff;
+  white-space: nowrap;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbbcff;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.chip.active {
+  background: linear-gradient(90deg, #6a4bff, #7a5cff);
+  color: white;
+  border-color: transparent;
+}
+
+.chip-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.chip-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.route-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9a8fc7;
+}
