@@ -1,6 +1,14 @@
 import { config } from 'dotenv';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 
+const currentFileDir = dirname(fileURLToPath(import.meta.url));
+const apiRootDir = resolve(currentFileDir, '../..');
+
+// Load API-local env first so `npm --prefix ... run dev` works from any cwd.
+config({ path: resolve(apiRootDir, '.env') });
+// Keep default dotenv behavior as a fallback for environment-specific overrides.
 config();
 
 const WEAK_ACCESS_DEFAULT = 'change_me_access';
@@ -13,6 +21,12 @@ const envSchema = z
     API_PORT: z.coerce.number().int().positive().default(4000),
     CORS_ORIGIN: z.string().default('http://localhost:5173'),
     DATABASE_URL: z.string().optional(),
+    LIVEKIT_URL: z.string().default(''),
+    LIVEKIT_API_KEY: z.string().default(''),
+    LIVEKIT_API_SECRET: z.string().default(''),
+    LIVEKIT_TOKEN_TTL: z.string().default('15m'),
+    CONVERSATION_MAX_DURATION_MINUTES: z.coerce.number().int().positive().default(30),
+    CONVERSATION_MAX_CONCURRENT_SESSIONS: z.coerce.number().int().positive().default(1),
     JWT_ACCESS_SECRET: z.string().min(1).optional(),
     JWT_REFRESH_SECRET: z.string().min(1).optional(),
     JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),

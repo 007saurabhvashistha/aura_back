@@ -75,6 +75,24 @@ export function HomePage() {
             <strong className={health ? 'up' : 'muted'}>{health?.status ?? '…'}</strong>
           </li>
         </ul>
+
+        <div className="conversation-entry">
+          <Link
+            to="/conversation"
+            className={`cta ${onboarding?.complete ? '' : 'disabled'}`.trim()}
+            aria-disabled={!onboarding?.complete}
+            onClick={(e) => {
+              if (!onboarding?.complete) {
+                e.preventDefault();
+              }
+            }}
+          >
+            Talk to Aura
+          </Link>
+          {!onboarding?.complete && (
+            <p className="muted">Finish onboarding to start voice conversations.</p>
+          )}
+        </div>
       </section>
     </main>
   );

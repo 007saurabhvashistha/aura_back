@@ -45,6 +45,18 @@ Copy `.env.example` to `.env`. The server boots without `DATABASE_URL`; the
 health endpoint will report the database as `unknown`/`disconnected` until a
 Neon connection string is provided.
 
+For conversation sessions (Sprint 3), set LiveKit credentials:
+
+- `LIVEKIT_URL`
+- `LIVEKIT_API_KEY`
+- `LIVEKIT_API_SECRET`
+- `LIVEKIT_TOKEN_TTL`
+
+Conversation safety limits:
+
+- `CONVERSATION_MAX_DURATION_MINUTES`
+- `CONVERSATION_MAX_CONCURRENT_SESSIONS`
+
 ## Endpoints
 
 | Method | Path      | Auth | Description             |
@@ -56,6 +68,10 @@ Neon connection string is provided.
 | POST   | `/api/v1/auth/refresh` | —      | Rotate refresh token, returns new tokens |
 | POST   | `/api/v1/auth/logout`  | —      | Revoke a refresh token |
 | GET    | `/api/v1/auth/me`      | Bearer | Current user's profile |
+| POST   | `/api/v1/conversations` | Bearer | Create a conversation and LiveKit token |
+| GET    | `/api/v1/conversations` | Bearer | List my conversations |
+| GET    | `/api/v1/conversations/:id` | Bearer | Conversation detail (short-term context) |
+| POST   | `/api/v1/conversations/:id/end` | Bearer | End a conversation safely |
 
 ### Auth notes
 

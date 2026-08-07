@@ -286,3 +286,82 @@ button.ghost {
   justify-content: center;
   color: #9a8fc7;
 }
+
+.conversation-entry {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  background: linear-gradient(90deg, #6a4bff, #7a5cff);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cta.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.conversation-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.conversation-header {
+  width: min(34rem, 100%);
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.conversation-card {
+  width: min(34rem, 100%);
+  margin: 0 auto;
+  border-radius: 16px;
+  padding: 1.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.conversation-card h2 {
+  margin-top: 0;
+  color: #cbbcff;
+}
+
+.conversation-indicator {
+  width: 84px;
+  height: 84px;
+  margin: 0.75rem auto;
+  border-radius: 999px;
+  background: radial-gradient(circle at 40% 35%, #cbbcff, #7a5cff 70%);
+  box-shadow: 0 0 34px rgba(122, 92, 255, 0.6);
+}
+
+.conversation-state {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.25rem 0;
+}
+
+.conversation-controls {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+button.danger {
+  background: linear-gradient(90deg, #af2940, #cf3e55);
+}

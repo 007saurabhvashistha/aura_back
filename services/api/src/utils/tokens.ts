@@ -5,6 +5,7 @@ import { env } from '../config/env.js';
 export interface AccessTokenPayload {
   sub: string;
   email: string;
+  role: string;
   type: 'access';
 }
 
@@ -15,8 +16,8 @@ export interface RefreshTokenPayload {
 }
 
 /** Sign a short-lived access token. */
-export function signAccessToken(userId: string, email: string): string {
-  const payload: AccessTokenPayload = { sub: userId, email, type: 'access' };
+export function signAccessToken(userId: string, email: string, role: string = 'user'): string {
+  const payload: AccessTokenPayload = { sub: userId, email, role, type: 'access' };
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRES_IN,
   } as jwt.SignOptions);

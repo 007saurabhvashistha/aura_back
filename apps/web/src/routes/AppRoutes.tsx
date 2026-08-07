@@ -7,6 +7,9 @@ import { OnboardingPage } from '../pages/OnboardingPage';
 import { ProfilePage } from '../pages/ProfilePage';
 import { HomePage } from '../pages/HomePage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { ConversationPage } from '../pages/ConversationPage';
+import { AdminRoutes } from '../admin/routes/AdminRoutes';
+import { StudioRoutes } from '../studio/routes/StudioRoutes';
 
 /** Redirect authenticated users away from public auth pages. */
 function PublicOnly({ children }: { children: React.ReactNode }) {
@@ -58,6 +61,16 @@ export function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/conversation"
+        element={
+          <ProtectedRoute>
+            <ConversationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/admin/*" element={<AdminRoutes />} />
+      <Route path="/studio/*" element={<StudioRoutes />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

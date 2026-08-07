@@ -9,6 +9,9 @@ import { errorHandler } from './middleware/error_handler.js';
 import { healthRouter } from './modules/health/health.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { profileRouter } from './modules/profile/profile.routes.js';
+import { conversationsRouter } from './modules/conversations/conversations.routes.js';
+import { agentsRouter } from './modules/agents/agents.routes.js';
+import { adminRouter } from './modules/admin/admin.routes.js';
 
 /** Build and configure the Express application (no listening here). */
 export function createApp(): Express {
@@ -41,6 +44,9 @@ export function createApp(): Express {
   // Versioned API namespace (features mount here from Sprint 1 onward).
   app.use('/api/v1/auth', authRouter);
   app.use('/api/v1/users', profileRouter);
+  app.use('/api/v1/conversations', conversationsRouter);
+  app.use('/api/v1/admin', adminRouter);
+  app.use('/api/v1/admin/agents', agentsRouter);
 
   app.use(notFound);
   app.use(errorHandler);

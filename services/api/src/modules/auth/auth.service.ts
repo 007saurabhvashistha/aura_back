@@ -54,7 +54,7 @@ async function issueTokens(user: UserRow): Promise<RefreshOutcome> {
 
   return {
     tokens: {
-      accessToken: signAccessToken(user.id, user.email),
+      accessToken: signAccessToken(user.id, user.email, user.role),
       tokenType: 'Bearer',
       expiresIn: env.JWT_ACCESS_EXPIRES_IN,
     },

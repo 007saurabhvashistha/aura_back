@@ -6,6 +6,7 @@ import {
   boolean,
   jsonb,
   unique,
+  integer,
 } from 'drizzle-orm/pg-core';
 
 /**
@@ -20,6 +21,7 @@ export const users = pgTable('users', {
   email: text('email').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
   name: text('name'),
+  role: text('role').notNull().default('user'), // 'user' | 'admin'
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
@@ -115,3 +117,97 @@ export type UserLanguageRow = typeof userLanguages.$inferSelect;
 export type NewUserLanguageRow = typeof userLanguages.$inferInsert;
 export type UserInterestRow = typeof userInterests.$inferSelect;
 export type NewUserInterestRow = typeof userInterests.$inferInsert;
+
+/** Conversation session lifecycle for realtime voice interactions. */
+export const conversations = pgTable('conversations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  agentKey: text('agent_key').notNull(),
+  livekitRoomName: text('livekit_room_name').notNull().unique(),
+  status: text('status').notNull().default('created'),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  endedAt: timestamp('ended_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Text messages only; raw audio never persists in the database. */
+export const conversationMessages = pgTable(
+  'conversation_messages',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    conversationId: uuid('conversation_id')
+      .notNull()
+      .references(() => conversations.id, { onDelete: 'cascade' }),
+    role: text('role').notNull(),
+    content: text('content').notNull(),
+    sequence: integer('sequence').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    conversationSequenceUnique: unique('conversation_messages_conversation_id_sequence_unique').on(
+      table.conversationId,
+      table.sequence,
+    ),
+  }),
+);
+
+export type ConversationRow = typeof conversations.$inferSelect;
+export type NewConversationRow = typeof conversations.$inferInsert;
+export type ConversationMessageRow = typeof conversationMessages.$inferSelect;
+export type NewConversationMessageRow = typeof conversationMessages.$inferInsert;
+
+/** AI Agents management for the Aura platform. */
+export const agents = pgTable(
+  'agents',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name').notNull(),
+    description: text('description'),
+    model: text('model').notNull(), // 'gpt-4', 'claude-3', 'llama-2', etc.
+    status: text('status').notNull().default('inactive'), // 'active', 'inactive', 'training'
+    accuracy: integer('accuracy'), // 0-100, nullable for new agents
+    conversationCount: integer('conversation_count').notNull().default(0),
+    systemPromptId: uuid('system_prompt_id'), // FK to prompts (future)
+    personaPromptId: uuid('persona_prompt_id'), // FK to prompts (future)
+    createdBy: uuid('created_by')
+      .notNull()
+      .references(() => users.id, { onDelete: 'restrict' }),
+    metadata: jsonb('metadata').notNull().default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  },
+  (table) => ({
+    agentNameUnique: unique('agents_name_unique').on(table.name),
+  }),
+);
+
+export type AgentRow = typeof agents.$inferSelect;
+export type NewAgentRow = typeof agents.$inferInsert;
+
+/**
+ * Admin sessions track login/logout activity for admin panel.
+ * Used for security auditing and concurrent session management.
+ */
+export const adminSessions = pgTable(
+  'admin_sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    loggedInAt: timestamp('logged_in_at', { withTimezone: true }).defaultNow().notNull(),
+    lastActivityAt: timestamp('last_activity_at', { withTimezone: true }).defaultNow().notNull(),
+    loggedOutAt: timestamp('logged_out_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  // Index on userId for efficient lookups
+);
+
+export type AdminSessionRow = typeof adminSessions.$inferSelect;
+export type NewAdminSessionRow = typeof adminSessions.$inferInsert;

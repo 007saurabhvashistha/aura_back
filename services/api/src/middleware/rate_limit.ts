@@ -45,3 +45,13 @@ export const profileLimiter = rateLimit({
   skip,
   handler,
 });
+
+/** Limiter for conversation lifecycle endpoints. */
+export const conversationLimiter = rateLimit({
+  windowMs: FIFTEEN_MINUTES,
+  limit: 30,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  skip,
+  handler,
+});

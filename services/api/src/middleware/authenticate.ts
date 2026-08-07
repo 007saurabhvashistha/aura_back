@@ -6,6 +6,7 @@ import { HttpError } from '../utils/http_error.js';
 export interface AuthenticatedUser {
   id: string;
   email: string;
+  role: string;
 }
 
 declare global {
@@ -27,7 +28,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
   const token = header.slice('Bearer '.length).trim();
   try {
     const payload = verifyAccessToken(token);
-    req.user = { id: payload.sub, email: payload.email };
+    req.user = { id: payload.sub, email: payload.email, role: payload.role };
     next();
   } catch {
     throw HttpError.unauthorized('Invalid or expired access token');

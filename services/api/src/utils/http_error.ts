@@ -25,4 +25,8 @@ export class HttpError extends Error {
   static notFound(message = 'Not found', code = 'not_found'): HttpError {
     return new HttpError(404, message, code);
   }
+
+  static forbidden(message = 'Forbidden', code = 'forbidden'): HttpError {
+    return new HttpError(403, message, code);
+  }
 }

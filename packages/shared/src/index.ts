@@ -137,3 +137,69 @@ export interface AvatarUploadTarget {
   uploadUrl: string;
   objectKey: string;
 }
+
+// ── Sprint 3: Conversation Foundation ─────────────────────────────────────
+
+export type ConversationStatus =
+  | 'created'
+  | 'connecting'
+  | 'active'
+  | 'ending'
+  | 'completed'
+  | 'failed';
+
+export type ConversationMessageRole = 'user' | 'assistant' | 'system';
+
+export interface Conversation {
+  id: string;
+  userId: string;
+  agentKey: string;
+  livekitRoomName: string;
+  status: ConversationStatus;
+  startedAt: string | null;
+  endedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationMessage {
+  id: string;
+  conversationId: string;
+  role: ConversationMessageRole;
+  content: string;
+  sequence: number;
+  createdAt: string;
+}
+
+export interface AgentConfig {
+  key: string;
+  name: string;
+  systemPrompt: string;
+  personality: 'warm' | 'playful' | 'calm' | 'intellectual' | 'empathetic';
+  voice: string;
+  languageMode: 'mirror_user' | 'single_language';
+}
+
+export interface ConversationStartResponse {
+  conversation: Pick<Conversation, 'id' | 'status'>;
+  livekit: {
+    url: string;
+    roomName: string;
+    token: string;
+  };
+  agent: {
+    key: string;
+    name: string;
+    personality: AgentConfig['personality'];
+    voice: string;
+  };
+}
+
+export interface ConversationListResponse {
+  conversations: Conversation[];
+}
+
+export interface ConversationDetailResponse {
+  conversation: Conversation;
+  messages: ConversationMessage[];
+}
