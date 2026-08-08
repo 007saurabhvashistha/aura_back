@@ -13,6 +13,7 @@ export const conversationMemory = {
 
   // Sprint 3 boundary: return candidate memories only; persistence is explicit later.
   extractCandidates(_messages: ConversationMessage[]): MemoryFactCandidate[] {
+    void _messages;
     return [];
   },
 };
