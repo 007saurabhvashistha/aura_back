@@ -8,10 +8,12 @@ if (!db) {
   process.exit(1);
 }
 
+const email = process.argv[2] || 'admin@test.com';
+
 await db
   .update(users)
   .set({ role: 'admin' })
-  .where(eq(users.email, 'admin@test.com'));
+  .where(eq(users.email, email));
 
-console.log('User updated to admin role');
+console.log(`User ${email} updated to admin role`);
 process.exit(0);
