@@ -14,7 +14,11 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "seed:companions": "tsx scripts/seed-companions.ts",
+    "benchmark": "tsx scripts/run-benchmark.ts",
+    "benchmark:candidates": "tsx scripts/compare-candidates.ts --list",
+    "benchmark:compare": "tsx scripts/compare-candidates.ts"
   },
   "dependencies": {
     "@aura/shared": "*",

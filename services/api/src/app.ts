@@ -10,6 +10,9 @@ import { healthRouter } from './modules/health/health.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { profileRouter } from './modules/profile/profile.routes.js';
 import { conversationsRouter } from './modules/conversations/conversations.routes.js';
+import { socialRouter } from './modules/social/social.routes.js';
+import { adminCompanionRouter, companionRouter } from './modules/companion/companion.routes.js';
+import { benchmarkRouter } from './modules/benchmark/benchmark.routes.js';
 import { agentsRouter } from './modules/agents/agents.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
 
@@ -45,8 +48,12 @@ export function createApp(): Express {
   app.use('/api/v1/auth', authRouter);
   app.use('/api/v1/users', profileRouter);
   app.use('/api/v1/conversations', conversationsRouter);
+  app.use('/api/v1/social', socialRouter);
+  app.use('/api/v1/companions', companionRouter);
   app.use('/api/v1/admin', adminRouter);
   app.use('/api/v1/admin/agents', agentsRouter);
+  app.use('/api/v1/admin/companions', adminCompanionRouter);
+  app.use('/api/v1/admin/benchmarks', benchmarkRouter);
 
   app.use(notFound);
   app.use(errorHandler);

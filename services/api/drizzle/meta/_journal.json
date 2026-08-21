@@ -36,6 +36,62 @@
       "when": 1786000000000,
       "tag": "0004_admin_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787238359750,
+      "tag": "0005_watery_wasp",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787241450548,
+      "tag": "0006_lying_spacker_dave",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787308047298,
+      "tag": "0007_blue_excalibur",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787312568464,
+      "tag": "0008_chemical_mandrill",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787314169683,
+      "tag": "0009_worthless_mephisto",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1787315042359,
+      "tag": "0010_round_karen_page",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1787325991856,
+      "tag": "0011_flat_wrecking_crew",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1787330069251,
+      "tag": "0012_huge_gertrude_yorkes",
+      "breakpoints": true
     }
   ]
 }

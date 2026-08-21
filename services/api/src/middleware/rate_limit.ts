@@ -36,6 +36,20 @@ export const sensitiveAuthLimiter = rateLimit({
   handler,
 });
 
+/**
+ * Transport-level guard for companion messages. The per-user token and cost budgets are
+ * enforced in the engine; this stops a burst from reaching the provider at all.
+ */
+export const companionMessageLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req: Request): string => req.user?.id ?? req.ip ?? 'anonymous',
+  skip,
+  handler,
+});
+
 /** Limiter for authenticated profile mutations (PATCH/PUT/POST/DELETE). */
 export const profileLimiter = rateLimit({
   windowMs: FIFTEEN_MINUTES,
