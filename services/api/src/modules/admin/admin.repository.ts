@@ -1,4 +1,4 @@
-import { eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { adminSessions, type AdminSessionRow, type NewAdminSessionRow } from '../../db/schema.js';
 import { getDb } from '../../db/client.js';
 
@@ -31,9 +31,7 @@ export const adminSessionRepository = {
     const result = await db
       .select()
       .from(adminSessions)
-      .where(
-        eq(adminSessions.id, sessionId)
-      )
+      .where(and(eq(adminSessions.id, sessionId), isNull(adminSessions.loggedOutAt)))
       .limit(1);
 
     return result[0];
@@ -49,7 +47,7 @@ export const adminSessionRepository = {
     return db
       .select()
       .from(adminSessions)
-      .where(isNull(adminSessions.loggedOutAt) && eq(adminSessions.userId, userId));
+      .where(and(isNull(adminSessions.loggedOutAt), eq(adminSessions.userId, userId)));
   },
 
   /**
@@ -94,7 +92,7 @@ export const adminSessionRepository = {
     const result = await db
       .update(adminSessions)
       .set({ loggedOutAt: new Date() })
-      .where(eq(adminSessions.userId, userId) && isNull(adminSessions.loggedOutAt));
+      .where(and(eq(adminSessions.userId, userId), isNull(adminSessions.loggedOutAt)));
 
     return result.rowCount ?? 0;
   },
