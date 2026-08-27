@@ -38,6 +38,7 @@ afterEach(() => {
 describe('production provider isolation', () => {
   it('never resolves an evaluation candidate as the production provider', () => {
     expect(createLlmProvider('demo').name).toBe('demo');
+    expect(createLlmProvider('openai_compatible').name).toBe('openai_compatible');
     expect(createLlmProvider('none').name).toBe('none');
 
     // Every declared candidate id must be unusable as a production provider.
@@ -45,7 +46,6 @@ describe('production provider isolation', () => {
       if (candidate.id === 'demo-baseline') continue;
       expect(createLlmProvider(candidate.id).name).toBe('none');
     }
-    expect(createLlmProvider('openai_compatible').name).toBe('none');
     expect(createLlmProvider('scripted').name).toBe('none');
   });
 

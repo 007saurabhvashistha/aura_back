@@ -1,6 +1,7 @@
 import { env } from '../../config/env.js';
 import type { LLMCompletionInput, LLMCompletionResult, LLMProvider } from '../interfaces.js';
 import { DemoLLMProvider } from './demo.provider.js';
+import { OpenAICompatibleProductionProvider } from './openai-compatible.provider.js';
 
 /** Placeholder adapter; selected when no provider is configured. */
 export class NoopLLMProvider implements LLMProvider {
@@ -18,6 +19,7 @@ export class NoopLLMProvider implements LLMProvider {
  */
 const registry: Record<string, () => LLMProvider> = {
   demo: () => new DemoLLMProvider(env.LLM_MODEL),
+  openai_compatible: () => new OpenAICompatibleProductionProvider(),
   none: () => new NoopLLMProvider(),
 };
 

@@ -223,8 +223,9 @@ describe('companion engine', () => {
 });
 
 describe('provider registry', () => {
-  it('resolves the demo provider and falls back to a failing noop for unknown names', async () => {
+  it('resolves configured providers and falls back to a failing noop for unknown names', async () => {
     expect(createLlmProvider('demo').name).toBe('demo');
+    expect(createLlmProvider('openai_compatible').name).toBe('openai_compatible');
     const unknown = createLlmProvider('definitely-not-registered');
     expect(unknown.name).toBe('none');
     await expect(unknown.complete({ systemPrompt: '', messages: [] })).rejects.toThrow(
