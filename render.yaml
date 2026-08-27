@@ -19,10 +19,10 @@ services:
         value: "true"
       - key: DATABASE_SSL
         value: auto
+      # Existing Neon database — it already holds the schema and the seeded
+      # companions. Paste the Neon connection string in the Render dashboard.
       - key: DATABASE_URL
-        fromDatabase:
-          name: aura-db
-          property: connectionString
+        sync: false
       # Comma-separated. Add the production Vercel domain plus a wildcard for previews.
       - key: CORS_ORIGIN
         sync: false
@@ -52,9 +52,3 @@ services:
         sync: false
       - key: LIVEKIT_API_SECRET
         sync: false
-
-databases:
-  - name: aura-db
-    plan: free
-    databaseName: aura
-    user: aura
