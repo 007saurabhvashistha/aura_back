@@ -19,8 +19,19 @@ const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     API_PORT: z.coerce.number().int().positive().default(4000),
+    // Platform-assigned port (Render, Heroku, Fly). Takes precedence over API_PORT.
+    PORT: z.coerce.number().int().positive().optional(),
     CORS_ORIGIN: z.string().default('http://localhost:5173'),
+    // Number of proxy hops to trust (Render/Vercel terminate TLS in front of the app).
+    TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(0),
     DATABASE_URL: z.string().optional(),
+    // 'auto' enables SSL for any non-local host; 'require'/'disable' force it.
+    DATABASE_SSL: z.enum(['auto', 'require', 'disable']).default('auto'),
+    // Applies pending Drizzle migrations at boot. Forward-only and idempotent.
+    RUN_MIGRATIONS_ON_START: z
+      .enum(['true', 'false'])
+      .default('false')
+      .transform((v) => v === 'true'),
     LIVEKIT_URL: z.string().default(''),
     LIVEKIT_API_KEY: z.string().default(''),
     LIVEKIT_API_SECRET: z.string().default(''),
@@ -31,8 +42,12 @@ const envSchema = z
     // a real provider must be selected explicitly, never by accident.
     LLM_PROVIDER: z.string().default('demo'),
     LLM_MODEL: z.string().default('aura-demo-1'),
+    LLM_BASE_URL: z.string().url().default('http://localhost:11434/v1'),
     LLM_API_KEY: z.string().optional(),
     LLM_MAX_OUTPUT_TOKENS: z.coerce.number().int().positive().max(4000).default(300),
+    LLM_TEMPERATURE: z.coerce.number().min(0).max(2).default(0.7),
+    LLM_COST_PER_1K_INPUT_MICRO_USD: z.coerce.number().int().min(0).default(0),
+    LLM_COST_PER_1K_OUTPUT_MICRO_USD: z.coerce.number().int().min(0).default(0),
     LLM_TIMEOUT_MS: z.coerce.number().int().positive().max(120_000).default(20_000),
     LLM_MAX_ATTEMPTS: z.coerce.number().int().min(1).max(5).default(2),
     LLM_CIRCUIT_FAILURE_THRESHOLD: z.coerce.number().int().min(1).max(50).default(5),
@@ -101,6 +116,7 @@ if (!parsed.success) {
 // therefore never reaches these defaults.
 export const env = {
   ...parsed.data,
+  API_PORT: parsed.data.PORT ?? parsed.data.API_PORT,
   JWT_ACCESS_SECRET: parsed.data.JWT_ACCESS_SECRET ?? WEAK_ACCESS_DEFAULT,
   JWT_REFRESH_SECRET: parsed.data.JWT_REFRESH_SECRET ?? WEAK_REFRESH_DEFAULT,
 };

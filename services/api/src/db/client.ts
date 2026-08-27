@@ -11,6 +11,26 @@ let pool: pkg.Pool | null = null;
 let dbInstance: NodePgDatabase<typeof schema> | null = null;
 
 /**
+ * Decide whether the connection needs TLS. Managed Postgres (Neon, Render
+ * external, Supabase) requires it; local and Render-internal hosts do not.
+ */
+function resolveSsl(connectionString: string): { rejectUnauthorized: boolean } | undefined {
+  if (env.DATABASE_SSL === 'disable') return undefined;
+  if (env.DATABASE_SSL === 'require') return { rejectUnauthorized: false };
+  if (connectionString.includes('sslmode=require')) return { rejectUnauthorized: false };
+  let host = '';
+  try {
+    host = new URL(connectionString).hostname;
+  } catch {
+    return undefined;
+  }
+  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+  // Render's internal hostnames are single-label (no dot) and speak plaintext.
+  const isInternal = !host.includes('.');
+  return isLocal || isInternal ? undefined : { rejectUnauthorized: false };
+}
+
+/**
  * Lazily create the Neon/Postgres pool and Drizzle client.
  * Returns null when DATABASE_URL is not configured so the API can still boot
  * (health will report the database as disconnected).
@@ -22,10 +42,7 @@ export function getDb(): NodePgDatabase<typeof schema> | null {
   if (!dbInstance) {
     pool = new Pool({
       connectionString: env.DATABASE_URL,
-      // Neon requires SSL.
-      ssl: env.DATABASE_URL.includes('sslmode=require')
-        ? { rejectUnauthorized: false }
-        : undefined,
+      ssl: resolveSsl(env.DATABASE_URL),
     });
     dbInstance = drizzle(pool, { schema });
     logger.info('Database client initialized');

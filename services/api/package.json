@@ -14,6 +14,7 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:deploy": "tsx scripts/migrate-deploy.ts",
     "db:studio": "drizzle-kit studio",
     "seed:companions": "tsx scripts/seed-companions.ts",
     "benchmark": "tsx scripts/run-benchmark.ts",

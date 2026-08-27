@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: aura-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: .
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY_HOPS
+        value: "1"
+      # Render injects PORT; the API binds to it via env.PORT.
+      - key: RUN_MIGRATIONS_ON_START
+        value: "true"
+      - key: DATABASE_SSL
+        value: auto
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aura-db
+          property: connectionString
+      # Comma-separated. Add the production Vercel domain plus a wildcard for previews.
+      - key: CORS_ORIGIN
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      # LLM — existing openai_compatible provider, pointed at Groq's free tier.
+      - key: LLM_PROVIDER
+        value: openai_compatible
+      - key: LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: LLM_MODEL
+        value: openai/gpt-oss-120b
+      - key: LLM_API_KEY
+        sync: false
+      - key: MODERATION_PROVIDER
+        value: rules
+      # LiveKit — set from the existing project credentials. Not modified here.
+      - key: LIVEKIT_URL
+        sync: false
+      - key: LIVEKIT_API_KEY
+        sync: false
+      - key: LIVEKIT_API_SECRET
+        sync: false
+
+databases:
+  - name: aura-db
+    plan: free
+    databaseName: aura
+    user: aura

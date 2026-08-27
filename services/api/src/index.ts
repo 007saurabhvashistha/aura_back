@@ -1,7 +1,17 @@
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { closeDatabase } from './db/client.js';
+import { runMigrations } from './db/migrate.js';
 import { logger } from './utils/logger.js';
+
+if (env.RUN_MIGRATIONS_ON_START) {
+  try {
+    await runMigrations();
+  } catch (error) {
+    logger.error('Startup migrations failed', { error: String(error) });
+    process.exit(1);
+  }
+}
 
 const app = createApp();
 

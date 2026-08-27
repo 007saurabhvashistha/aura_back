@@ -16,14 +16,45 @@ import { benchmarkRouter } from './modules/benchmark/benchmark.routes.js';
 import { agentsRouter } from './modules/agents/agents.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
 
+/**
+ * Match an origin against the configured allow-list. An entry may be an exact
+ * origin or a wildcard host such as `https://*.vercel.app` (preview deploys).
+ */
+function isAllowedOrigin(origin: string, allowed: string[]): boolean {
+  return allowed.some((entry) => {
+    if (entry === origin) return true;
+    if (!entry.includes('*')) return false;
+    const pattern = new RegExp(
+      `^${entry.split('*').map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('[^.]*')}$`,
+    );
+    return pattern.test(origin);
+  });
+}
+
 /** Build and configure the Express application (no listening here). */
 export function createApp(): Express {
   const app = express();
 
+  // Render/Vercel put the app behind a proxy; needed for correct req.ip and
+  // secure-cookie detection in the rate limiters.
+  if (env.TRUST_PROXY_HOPS > 0) {
+    app.set('trust proxy', env.TRUST_PROXY_HOPS);
+  }
+
+  const allowedOrigins = env.CORS_ORIGIN.split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
   app.use(helmet());
   app.use(
     cors({
-      origin: env.CORS_ORIGIN.split(',').map((o) => o.trim()),
+      origin: (origin, callback) => {
+        // Same-origin/non-browser requests (curl, health checks) send no Origin.
+        if (!origin) return callback(null, true);
+        // Disallowed origins get no CORS headers rather than an error response,
+        // so the browser blocks them without the API logging a 500.
+        return callback(null, isAllowedOrigin(origin, allowedOrigins));
+      },
       credentials: true,
     }),
   );
