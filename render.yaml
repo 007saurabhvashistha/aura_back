@@ -45,10 +45,5 @@ services:
         sync: false
       - key: MODERATION_PROVIDER
         value: rules
-      # LiveKit — set from the existing project credentials. Not modified here.
-      - key: LIVEKIT_URL
-        sync: false
-      - key: LIVEKIT_API_KEY
-        sync: false
-      - key: LIVEKIT_API_SECRET
-        sync: false
+      # LiveKit is intentionally absent: the env schema defaults it to empty and
+      # voice/video is out of scope for this deployment.
